@@ -8,6 +8,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $student_id = $_POST['student_id'];
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
     
+    if (!str_ends_with($email, '@ut.edu.vn')) {
+        echo json_encode(['success' => false, 'message' => 'Email must be @ut.edu.vn domain']);
+        exit;
+    }
+    
     // Check if email exists
     $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
     $stmt->execute([$email]);

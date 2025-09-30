@@ -15,8 +15,15 @@ function closeModal(modalId) {
 function handleLogin(event) {
     event.preventDefault();
     
+    const email = document.getElementById('loginEmail').value;
+    
+    if (!email.endsWith('@ut.edu.vn')) {
+        showNotification('Email must be @ut.edu.vn domain!', 'error');
+        return;
+    }
+    
     const formData = new FormData();
-    formData.append('email', document.getElementById('loginEmail').value);
+    formData.append('email', email);
     formData.append('password', document.getElementById('loginPassword').value);
 
     
@@ -52,8 +59,14 @@ function handleLogin(event) {
 function handleRegister(event) {
     event.preventDefault();
     
+    const email = document.getElementById('registerEmail').value;
     const password = document.getElementById('registerPassword').value;
     const confirmPassword = document.getElementById('registerConfirmPassword').value;
+    
+    if (!email.endsWith('@ut.edu.vn')) {
+        showNotification('Email must be @ut.edu.vn domain!', 'error');
+        return;
+    }
     
     if (password !== confirmPassword) {
         showNotification('Passwords do not match!', 'error');
@@ -62,7 +75,7 @@ function handleRegister(event) {
     
     const formData = new FormData();
     formData.append('name', document.getElementById('registerName').value);
-    formData.append('email', document.getElementById('registerEmail').value);
+    formData.append('email', email);
     formData.append('student_id', document.getElementById('registerStudentId').value);
     formData.append('password', password);
     

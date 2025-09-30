@@ -6,7 +6,7 @@
         <form onsubmit="handleLogin(event)">
             <div class="form-group">
                 <label class="form-label">Email</label>
-                <input type="email" class="form-input" id="loginEmail" required>
+                <input type="email" class="form-input" id="loginEmail" placeholder="example@ut.edu.vn" required>
             </div>
             <div class="form-group">
                 <label class="form-label">Password</label>
@@ -29,7 +29,7 @@
             </div>
             <div class="form-group">
                 <label class="form-label">Email</label>
-                <input type="email" class="form-input" id="registerEmail" required>
+                <input type="email" class="form-input" id="registerEmail" placeholder="example@ut.edu.vn" required>
             </div>
             <div class="form-group">
                 <label class="form-label">Student ID</label>

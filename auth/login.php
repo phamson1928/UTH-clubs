@@ -5,6 +5,11 @@ require_once '../config/database.php';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = $_POST['email'];
     $password = $_POST['password'];
+    
+    if (!str_ends_with($email, '@ut.edu.vn')) {
+        echo json_encode(['success' => false, 'message' => 'Email must be @ut.edu.vn domain']);
+        exit;
+    }
 
     
     $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
