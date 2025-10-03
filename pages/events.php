@@ -1,5 +1,26 @@
+<?php
+// Fetch events with club names and available seats (max_participants - registrations)
+try {
+    $stmt = $pdo->query("SELECT e.id, e.name, e.date, e.location, e.max_participants, e.club_id, e.event_image,
+                                c.name AS club_name,
+                                (e.max_participants - (SELECT COUNT(*) FROM event_registrations er WHERE er.event_id = e.id)) AS seats_left
+                         FROM events e
+                         LEFT JOIN clubs c ON c.id = e.club_id
+                         ORDER BY e.date ASC");
+    $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (Exception $e) {
+    $events = [];
+}
+// Fetch clubs for filter dropdown
+try {
+    $clubStmt = $pdo->query("SELECT id, name FROM clubs ORDER BY name ASC");
+    $clubsForFilter = $clubStmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (Exception $e) {
+    $clubsForFilter = [];
+}
+?>
 <!-- Events Section -->
-<div id="events" class="section">
+<div id="events" class="section<?php echo ($activeSection === 'events') ? ' active' : ''; ?>">
     <div class="container">
         <h1 style="text-align: center; margin-bottom: 2rem; color: #1f2937;">Upcoming Events</h1>
         
@@ -12,12 +33,9 @@
                 <label>Club</label>
                 <select id="eventClub" onchange="filterEvents()">
                     <option value="">All Clubs</option>
-                    <option value="tech">Tech Club</option>
-                    <option value="art">Art Club</option>
-                    <option value="debate">Debate Society</option>
-                    <option value="soccer">Soccer Club</option>
-                    <option value="science">Science Society</option>
-                    <option value="music">Music Club</option>
+                    <?php foreach ($clubsForFilter as $c): ?>
+                    <option value="<?php echo (int)$c['id']; ?>"><?php echo htmlspecialchars($c['name']); ?></option>
+                    <?php endforeach; ?>
                 </select>
             </div>
             <div class="filter-group">
@@ -31,95 +49,53 @@
         </div>
 
         <div class="card-grid" id="eventsList">
-            <div class="card" data-club="tech" data-date="2024-03-25">
+            <?php foreach ($events as $event): ?>
+            <div class="card" data-club-id="<?php echo (int)$event['club_id']; ?>" data-date="<?php echo htmlspecialchars($event['date']); ?>">
                 <div class="card-header">
-                    <div class="card-title">Tech Innovation Workshop</div>
-                    <span class="badge badge-info">Tech Club</span>
+                    <div style="display:flex; gap:1rem; align-items:center;">
+                        <?php if (!empty($event['event_image'])): ?>
+                            <?php $imgFile = basename($event['event_image']); ?>
+                            <img src="uploads/events/<?php echo htmlspecialchars($imgFile); ?>" alt="<?php echo htmlspecialchars($event['name']); ?>" style="width:72px; height:56px; object-fit:cover; border-radius:6px; cursor:pointer;" onclick="showImageModal('uploads/events/<?php echo htmlspecialchars($imgFile); ?>','<?php echo htmlspecialchars($event['name']); ?>')">
+                        <?php else: ?>
+                            <div style="width:72px; height:56px; background:#f3f4f6; display:flex; align-items:center; justify-content:center; border-radius:6px; color:#6b7280;">No image</div>
+                        <?php endif; ?>
+                        <div>
+                            <div class="card-title"><?php echo htmlspecialchars($event['name']); ?></div>
+                            <span class="badge badge-info"><?php echo htmlspecialchars($event['club_name']); ?></span>
+                        </div>
+                    </div>
                 </div>
                 <div class="card-content">
-                    <p><strong>📅 Date:</strong> March 25, 2024</p>
-                    <p><strong>🕐 Time:</strong> 2:00 PM - 5:00 PM</p>
-                    <p><strong>📍 Location:</strong> Engineering Building, Room 101</p>
-                    <p><strong>👥 Available Seats:</strong> <span class="seats-available">15</span>/50</p>
-                    <p>Learn about the latest trends in technology and innovation. Perfect for aspiring entrepreneurs!</p>
-                    <button class="btn btn-primary" onclick="registerForEvent(1)">Register Now</button>
+                    <p><strong>📅 Date:</strong> <?php echo htmlspecialchars($event['date']); ?></p>
+                    <p><strong>📍 Location:</strong> <?php echo htmlspecialchars($event['location']); ?></p>
+                    <p><strong>👥 Available Seats:</strong> <span class="seats-available"><?php echo max(0, (int)$event['seats_left']); ?></span>/<?php echo (int)$event['max_participants']; ?></p>
+                    <button class="btn btn-primary" onclick="registerForEvent(<?php echo (int)$event['id']; ?>)">Register Now</button>
                 </div>
             </div>
-
-            <div class="card" data-club="art" data-date="2024-03-28">
-                <div class="card-header">
-                    <div class="card-title">Photography Exhibition</div>
-                    <span class="badge badge-success">Art Club</span>
-                </div>
-                <div class="card-content">
-                    <p><strong>📅 Date:</strong> March 28, 2024</p>
-                    <p><strong>🕐 Time:</strong> 10:00 AM - 6:00 PM</p>
-                    <p><strong>📍 Location:</strong> Student Center Gallery</p>
-                    <p><strong>👥 Available Seats:</strong> <span class="seats-available">8</span>/30</p>
-                    <p>Showcase your photography skills and view amazing works from fellow students.</p>
-                    <button class="btn btn-primary" onclick="registerForEvent(2)">Register Now</button>
-                </div>
-            </div>
-
-            <div class="card" data-club="debate" data-date="2024-04-02">
-                <div class="card-header">
-                    <div class="card-title">Debate Championship</div>
-                    <span class="badge badge-warning">Debate Society</span>
-                </div>
-                <div class="card-content">
-                    <p><strong>📅 Date:</strong> April 2, 2024</p>
-                    <p><strong>🕐 Time:</strong> 1:00 PM - 8:00 PM</p>
-                    <p><strong>📍 Location:</strong> Main Auditorium</p>
-                    <p><strong>👥 Available Seats:</strong> <span class="seats-available">25</span>/100</p>
-                    <p>Annual inter-college debate championship. Come support our debaters!</p>
-                    <button class="btn btn-primary" onclick="registerForEvent(3)">Register Now</button>
-                </div>
-            </div>
-
-            <div class="card" data-club="soccer" data-date="2024-03-30">
-                <div class="card-header">
-                    <div class="card-title">Soccer Tournament</div>
-                    <span class="badge badge-info">Soccer Club</span>
-                </div>
-                <div class="card-content">
-                    <p><strong>📅 Date:</strong> March 30, 2024</p>
-                    <p><strong>🕐 Time:</strong> 9:00 AM - 5:00 PM</p>
-                    <p><strong>📍 Location:</strong> University Sports Complex</p>
-                    <p><strong>👥 Available Seats:</strong> <span class="seats-available">40</span>/200</p>
-                    <p>Annual soccer tournament featuring teams from different departments. Prizes for winners!</p>
-                    <button class="btn btn-primary" onclick="registerForEvent(4)">Register Now</button>
-                </div>
-            </div>
-
-            <div class="card" data-club="science" data-date="2024-04-05">
-                <div class="card-header">
-                    <div class="card-title">Science Fair</div>
-                    <span class="badge badge-success">Science Society</span>
-                </div>
-                <div class="card-content">
-                    <p><strong>📅 Date:</strong> April 5, 2024</p>
-                    <p><strong>🕐 Time:</strong> 11:00 AM - 4:00 PM</p>
-                    <p><strong>📍 Location:</strong> Science Building Atrium</p>
-                    <p><strong>👥 Available Seats:</strong> <span class="seats-available">60</span>/150</p>
-                    <p>Present your research projects and explore innovative scientific discoveries from fellow students.</p>
-                    <button class="btn btn-primary" onclick="registerForEvent(5)">Register Now</button>
-                </div>
-            </div>
-
-            <div class="card" data-club="music" data-date="2024-04-08">
-                <div class="card-header">
-                    <div class="card-title">Spring Concert</div>
-                    <span class="badge badge-warning">Music Club</span>
-                </div>
-                <div class="card-content">
-                    <p><strong>📅 Date:</strong> April 8, 2024</p>
-                    <p><strong>🕐 Time:</strong> 7:00 PM - 10:00 PM</p>
-                    <p><strong>📍 Location:</strong> University Concert Hall</p>
-                    <p><strong>👥 Available Seats:</strong> <span class="seats-available">120</span>/300</p>
-                    <p>Enjoy an evening of beautiful music performed by talented student musicians.</p>
-                    <button class="btn btn-primary" onclick="registerForEvent(6)">Register Now</button>
-                </div>
-            </div>
+            <?php endforeach; ?>
+            <?php if (empty($events)): ?>
+            <div>No events available.</div>
+            <?php endif; ?>
         </div>
     </div>
+    <script>
+        // Adjust filterEvents to work with club-id values
+        function filterEvents() {
+            const searchTerm = document.getElementById('eventSearch').value.toLowerCase();
+            const clubId = document.getElementById('eventClub').value;
+            const dateFrom = document.getElementById('eventDateFrom').value;
+            const dateTo = document.getElementById('eventDateTo').value;
+            const events = document.querySelectorAll('#eventsList .card');
+            events.forEach(event => {
+                const title = event.querySelector('.card-title').textContent.toLowerCase();
+                const eventClubId = event.getAttribute('data-club-id');
+                const eventDate = event.getAttribute('data-date');
+                const matchesSearch = title.includes(searchTerm);
+                const matchesClub = !clubId || eventClubId === clubId;
+                const matchesDateFrom = !dateFrom || eventDate >= dateFrom;
+                const matchesDateTo = !dateTo || eventDate <= dateTo;
+                event.style.display = (matchesSearch && matchesClub && matchesDateFrom && matchesDateTo) ? 'block' : 'none';
+            });
+        }
+    </script>
 </div>
