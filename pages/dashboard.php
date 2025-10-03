@@ -11,6 +11,7 @@
                 <button class="btn btn-primary" onclick="showAdminSection('users')">Manage Users</button>
                 <button class="btn btn-primary" onclick="showAdminSection('clubs')">Manage Clubs</button>
                 <button class="btn btn-primary" onclick="showAdminSection('events')">Manage Events</button>
+                <button class="btn btn-primary" onclick="showAdminSection('requests')">Join Requests</button>
                 <button class="btn btn-primary" onclick="showAdminSection('reports')">View Reports</button>
             </div>
 
@@ -85,6 +86,28 @@
             </div>
 
 
+
+            <!-- Admin Join Requests -->
+            <div id="adminRequests" class="admin-section" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <h2>Club Join Requests</h2>
+                </div>
+                
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Student Name</th>
+                                <th>Club</th>
+                                <th>Request Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="requestsTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
 
             <!-- Admin Reports -->
             <div id="adminReports" class="admin-section" style="display: none;">
