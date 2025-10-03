@@ -207,7 +207,8 @@ function registerForEvent(eventId) {
         showNotification("Successfully registered for the event!", "success");
         // Update UI for successful registration
         try {
-          const card = Array.from(
+          // Update events page
+          const eventCard = Array.from(
             document.querySelectorAll("#eventsList .card")
           ).find((el) =>
             el
@@ -215,14 +216,39 @@ function registerForEvent(eventId) {
               ?.getAttribute("onclick")
               ?.includes(`registerForEvent(${eventId})`)
           );
-          if (card) {
+          if (eventCard) {
             // Update seats available
             if (data.seats_left !== undefined) {
-              const seatsElement = card.querySelector(".seats-available");
+              const seatsElement = eventCard.querySelector(".seats-available");
               if (seatsElement) seatsElement.textContent = data.seats_left;
             }
             // Update button to show registered state
-            const button = card.querySelector("button.btn.btn-primary");
+            const button = eventCard.querySelector("button.btn.btn-primary");
+            if (button) {
+              button.textContent = "Already Registered";
+              button.className = "btn btn-secondary";
+              button.disabled = true;
+              button.removeAttribute("onclick");
+            }
+          }
+          
+          // Update home page featured events
+          const homeCard = Array.from(
+            document.querySelectorAll("#upcomingEvents .card")
+          ).find((el) =>
+            el
+              .querySelector("button.btn.btn-primary")
+              ?.getAttribute("onclick")
+              ?.includes(`registerForEvent(${eventId})`)
+          );
+          if (homeCard) {
+            // Update seats available
+            if (data.seats_left !== undefined) {
+              const seatsElement = homeCard.querySelector(".seats-available");
+              if (seatsElement) seatsElement.textContent = data.seats_left;
+            }
+            // Update button to show registered state
+            const button = homeCard.querySelector("button.btn.btn-primary");
             if (button) {
               button.textContent = "Already Registered";
               button.className = "btn btn-secondary";

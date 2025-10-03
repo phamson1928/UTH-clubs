@@ -1,13 +1,16 @@
 <?php
 // Featured: show 3 most recent events (representative, no date filtering)
 try {
-    $upStmt = $pdo->query("SELECT e.id, e.name, e.date, e.location, e.max_participants, e.event_image,
+    $userId = isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : 0;
+    $upStmt = $pdo->prepare("SELECT e.id, e.name, e.date, e.location, e.max_participants, e.event_image,
                                   c.name AS club_name,
-                                  (e.max_participants - (SELECT COUNT(*) FROM event_registrations er WHERE er.event_id = e.id)) AS seats_left
+                                  (e.max_participants - (SELECT COUNT(*) FROM event_registrations er WHERE er.event_id = e.id)) AS seats_left,
+                                  (SELECT COUNT(*) FROM event_registrations er WHERE er.event_id = e.id AND er.user_id = ?) AS is_registered
                            FROM events e
                            LEFT JOIN clubs c ON c.id = e.club_id
                            ORDER BY e.date DESC
                            LIMIT 3");
+    $upStmt->execute([$userId]);
     $upcoming = $upStmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (Exception $e) {
     $upcoming = [];
@@ -59,8 +62,14 @@ try {
                 <div class="card-content">
                     <p><strong>📅 Date:</strong> <?php echo htmlspecialchars($ev['date']); ?></p>
                     <p><strong>📍 Location:</strong> <?php echo htmlspecialchars($ev['location']); ?></p>
-                    <p><strong>👥 Available Seats:</strong> <?php echo max(0, (int)$ev['seats_left']); ?>/<?php echo (int)$ev['max_participants']; ?></p>
-                    <button class="btn btn-primary" onclick="registerForEvent(<?php echo (int)$ev['id']; ?>)">Register Now</button>
+                    <p><strong>👥 Available Seats:</strong> <span class="seats-available"><?php echo max(0, (int)$ev['seats_left']); ?></span>/<?php echo (int)$ev['max_participants']; ?></p>
+                    <?php if ((int)$ev['is_registered'] > 0): ?>
+                        <button class="btn btn-secondary" disabled>Already Registered</button>
+                    <?php elseif ((int)$ev['seats_left'] <= 0): ?>
+                        <button class="btn btn-secondary" disabled>Event Full</button>
+                    <?php else: ?>
+                        <button class="btn btn-primary" onclick="registerForEvent(<?php echo (int)$ev['id']; ?>)">Register Now</button>
+                    <?php endif; ?>
                 </div>
             </div>
             <?php endforeach; ?>
