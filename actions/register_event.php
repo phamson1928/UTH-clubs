@@ -44,7 +44,7 @@ try {
     $check = $pdo->prepare('SELECT id FROM event_registrations WHERE event_id = ? AND user_id = ?');
     $check->execute([$eventId, $userId]);
     if ($check->fetch()) {
-        echo json_encode(['success' => true, 'message' => 'Already registered']);
+        echo json_encode(['success' => false, 'message' => 'You have already registered for this event']);
         exit;
     }
 
