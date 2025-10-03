@@ -1,12 +1,15 @@
 <?php
 // Fetch events with club names and available seats (max_participants - registrations)
 try {
-    $stmt = $pdo->query("SELECT e.id, e.name, e.date, e.location, e.max_participants, e.club_id, e.event_image,
+    $userId = isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : 0;
+    $stmt = $pdo->prepare("SELECT e.id, e.name, e.date, e.location, e.max_participants, e.club_id, e.event_image,
                                 c.name AS club_name,
-                                (e.max_participants - (SELECT COUNT(*) FROM event_registrations er WHERE er.event_id = e.id)) AS seats_left
+                                (e.max_participants - (SELECT COUNT(*) FROM event_registrations er WHERE er.event_id = e.id)) AS seats_left,
+                                (SELECT COUNT(*) FROM event_registrations er WHERE er.event_id = e.id AND er.user_id = ?) AS is_registered
                          FROM events e
                          LEFT JOIN clubs c ON c.id = e.club_id
                          ORDER BY e.date ASC");
+    $stmt->execute([$userId]);
     $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (Exception $e) {
     $events = [];
@@ -69,7 +72,13 @@ try {
                     <p><strong>📅 Date:</strong> <?php echo htmlspecialchars($event['date']); ?></p>
                     <p><strong>📍 Location:</strong> <?php echo htmlspecialchars($event['location']); ?></p>
                     <p><strong>👥 Available Seats:</strong> <span class="seats-available"><?php echo max(0, (int)$event['seats_left']); ?></span>/<?php echo (int)$event['max_participants']; ?></p>
-                    <button class="btn btn-primary" onclick="registerForEvent(<?php echo (int)$event['id']; ?>)">Register Now</button>
+                    <?php if ((int)$event['is_registered'] > 0): ?>
+                        <button class="btn btn-secondary" disabled>Already Registered</button>
+                    <?php elseif ((int)$event['seats_left'] <= 0): ?>
+                        <button class="btn btn-secondary" disabled>Event Full</button>
+                    <?php else: ?>
+                        <button class="btn btn-primary" onclick="registerForEvent(<?php echo (int)$event['id']; ?>)">Register Now</button>
+                    <?php endif; ?>
                 </div>
             </div>
             <?php endforeach; ?>
