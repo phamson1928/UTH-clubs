@@ -1,49 +1,107 @@
+<?php
+// If club_id provided, fetch club details and related info
+$clubDetails = null;
+$clubMembers = [];
+$clubEvents = [];
+if (!empty($activeClubId)) {
+    try {
+        $cdStmt = $pdo->prepare("SELECT c.*, u.name AS leader_name, u.email AS leader_email,
+                                        (SELECT COUNT(*) FROM club_members cm WHERE cm.club_id = c.id) AS member_count
+                                 FROM clubs c
+                                 LEFT JOIN users u ON u.id = c.leader_id
+                                 WHERE c.id = ?");
+        $cdStmt->execute([$activeClubId]);
+        $clubDetails = $cdStmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    } catch (Exception $e) {}
+    try {
+        $memStmt = $pdo->prepare("SELECT u.name, u.email, cm.joined_date
+                                   FROM club_members cm
+                                   JOIN users u ON u.id = cm.user_id
+                                   WHERE cm.club_id = ?");
+        $memStmt->execute([$activeClubId]);
+        $clubMembers = $memStmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Exception $e) {}
+    try {
+        $evStmt = $pdo->prepare("SELECT id, name, date, location FROM events WHERE club_id = ? ORDER BY date DESC LIMIT 5");
+        $evStmt->execute([$activeClubId]);
+        $clubEvents = $evStmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Exception $e) {}
+}
+?>
 <!-- Club Details Section -->
-<div id="clubDetails" class="section">
+<div id="clubDetails" class="section<?php echo ($activeSection === 'clubDetails') ? ' active' : ''; ?>">
     <div class="container">
         <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem;">
-            <button class="btn btn-secondary" onclick="goBackToClubs()">← Back to Clubs</button>
+            <a class="btn btn-secondary" href="?section=clubs">← Back to Clubs</a>
             <h1 id="clubDetailsTitle" style="margin: 0; color: #1f2937;">Club Details</h1>
         </div>
 
         <div id="clubDetailsContent">
-            <!-- Club header info -->
             <div class="card" style="margin-bottom: 2rem;">
                 <div class="card-header">
                     <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                         <div>
-                            <div class="card-title" id="clubDetailName" style="font-size: 2rem; margin-bottom: 0.5rem;">Tech Club</div>
+                            <div class="card-title" id="clubDetailName" style="font-size: 2rem; margin-bottom: 0.5rem;">
+                                <?php echo $clubDetails ? htmlspecialchars($clubDetails['name']) : 'Select a club'; ?>
+                            </div>
                             <div style="display: flex; gap: 1rem; align-items: center;">
-                                <span class="badge badge-info" id="clubDetailCategory">Technology</span>
-                                <span class="badge badge-success" id="clubDetailMemberCount">45 Members</span>
+                                <span class="badge badge-info" id="clubDetailCategory"><?php echo $clubDetails ? htmlspecialchars(ucfirst($clubDetails['category'])) : ''; ?></span>
+                                <span class="badge badge-success" id="clubDetailMemberCount"><?php echo $clubDetails ? (int)$clubDetails['member_count'] . ' Members' : ''; ?></span>
                             </div>
                         </div>
+                        <?php if ($clubDetails): ?>
                         <button class="btn btn-success" onclick="joinClubFromDetails()" id="joinClubBtn">Join Club</button>
+                        <?php endif; ?>
                     </div>
                 </div>
                 <div class="card-content">
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin-bottom: 1.5rem;">
+                        <div style="display:flex; align-items:flex-start; gap:1rem;">
+                            <?php if ($clubDetails && !empty($clubDetails['club_image'])): ?>
+                                <?php
+                                    // Ensure we don't output dangerous paths; use basename to strip directories
+                                    $imgFile = basename($clubDetails['club_image']);
+                                    $imgPath = 'uploads/clubs/' . $imgFile;
+                                ?>
+                                <div style="max-width:280px;">
+                                    <img src="<?php echo htmlspecialchars($imgPath); ?>" alt="<?php echo htmlspecialchars($clubDetails['name'] ?? 'Club image'); ?>" style="width:100%; height:auto; border-radius:8px; object-fit:cover; border:1px solid #e5e7eb;">
+                                </div>
+                            <?php else: ?>
+                                <div style="max-width:280px;">
+                                    <div style="width:100%; padding:2rem; border-radius:8px; background:#f3f4f6; text-align:center; color:#6b7280; border:1px dashed #e5e7eb;">No image available</div>
+                                </div>
+                            <?php endif; ?>
+                        </div>
                         <div>
                             <h4 style="color: #008689; margin-bottom: 0.5rem;">👤 Club Leader</h4>
-                            <p id="clubDetailLeader" style="margin: 0; font-weight: 500;">Sarah Johnson</p>
-                            <p style="margin: 0; color: #6b7280; font-size: 0.9rem;">Computer Science, 3rd Year</p>
+                            <p id="clubDetailLeader" style="margin: 0; font-weight: 500;">
+                                <?php echo $clubDetails ? htmlspecialchars($clubDetails['leader_name'] ?: 'N/A') : ''; ?>
+                            </p>
                         </div>
                         <div>
                             <h4 style="color: #008689; margin-bottom: 0.5rem;">📅 Meeting Schedule</h4>
-                            <p id="clubDetailSchedule" style="margin: 0;">Every Tuesday, 6:00 PM</p>
-                            <p style="margin: 0; color: #6b7280; font-size: 0.9rem;">Engineering Building, Room 205</p>
+                            <p id="clubDetailSchedule" style="margin: 0;">
+                                <?php echo $clubDetails ? htmlspecialchars($clubDetails['schedule_meeting'] ?: '') : ''; ?>
+                            </p>
                         </div>
                         <div>
                             <h4 style="color: #008689; margin-bottom: 0.5rem;">📧 Contact</h4>
-                            <p style="margin: 0;">techclub@uth.edu</p>
-                            <p style="margin: 0; color: #6b7280; font-size: 0.9rem;">+1 (555) 123-4567</p>
+                            <p style="margin: 0;">
+                                <?php if ($clubDetails && !empty($clubDetails['leader_email'])):
+                                    $mailto = 'mailto:' . rawurlencode($clubDetails['leader_email']);
+                                ?>
+                                    <a href="<?php echo htmlspecialchars($mailto); ?>"><?php echo htmlspecialchars($clubDetails['leader_email']); ?></a>
+                                <?php else: ?>
+                                    —
+                                <?php endif; ?>
+                            </p>
                         </div>
                     </div>
                     
                     <div>
                         <h4 style="color: #008689; margin-bottom: 1rem;">📝 About This Club</h4>
                         <p id="clubDetailDescription" style="line-height: 1.6; color: #374151;">
-                            The Tech Club is a vibrant community of technology enthusiasts dedicated to exploring the latest innovations in software development, artificial intelligence, and emerging technologies. We organize workshops, hackathons, and tech talks featuring industry professionals.
+                            <?php echo $clubDetails ? nl2br(htmlspecialchars($clubDetails['description'])) : 'Please choose a club from the list.'; ?>
                         </p>
                     </div>
                 </div>
@@ -56,22 +114,15 @@
                 </div>
                 <div class="card-content">
                     <div class="card-grid" id="clubActivities">
-                        <div style="padding: 1rem; border: 1px solid #e5e7eb; border-radius: 8px;">
-                            <h5 style="color: #008689; margin-bottom: 0.5rem;">💻 Weekly Coding Sessions</h5>
-                            <p style="margin: 0; font-size: 0.9rem; color: #6b7280;">Collaborative programming sessions where members work on projects together and learn new technologies.</p>
-                        </div>
-                        <div style="padding: 1rem; border: 1px solid #e5e7eb; border-radius: 8px;">
-                            <h5 style="color: #008689; margin-bottom: 0.5rem;">🏆 Monthly Hackathons</h5>
-                            <p style="margin: 0; font-size: 0.9rem; color: #6b7280;">24-hour coding competitions with exciting themes and prizes for innovative solutions.</p>
-                        </div>
-                        <div style="padding: 1rem; border: 1px solid #e5e7eb; border-radius: 8px;">
-                            <h5 style="color: #008689; margin-bottom: 0.5rem;">🎤 Tech Talks</h5>
-                            <p style="margin: 0; font-size: 0.9rem; color: #6b7280;">Guest speakers from leading tech companies share insights about industry trends and career opportunities.</p>
-                        </div>
-                        <div style="padding: 1rem; border: 1px solid #e5e7eb; border-radius: 8px;">
-                            <h5 style="color: #008689; margin-bottom: 0.5rem;">🚀 Startup Incubator</h5>
-                            <p style="margin: 0; font-size: 0.9rem; color: #6b7280;">Support and mentorship for members interested in launching their own tech startups.</p>
-                        </div>
+                        <?php if ($clubDetails && !empty($clubDetails['activities'])): ?>
+                            <?php foreach (explode(',', $clubDetails['activities']) as $activity): ?>
+                            <div style="padding: 1rem; border: 1px solid #e5e7eb; border-radius: 8px;">
+                                <h5 style="color: #008689; margin-bottom: 0.5rem;"><?php echo htmlspecialchars(trim($activity)); ?></h5>
+                            </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <div>No activities listed.</div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -83,20 +134,18 @@
                 </div>
                 <div class="card-content">
                     <div id="clubEvents">
+                        <?php foreach ($clubEvents as $cev): ?>
                         <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 1rem;">
                             <div>
-                                <h5 style="margin: 0 0 0.5rem 0; color: #1f2937;">Tech Innovation Workshop</h5>
-                                <p style="margin: 0; color: #6b7280; font-size: 0.9rem;">March 25, 2024 • Engineering Building, Room 101</p>
+                                <h5 style="margin: 0 0 0.5rem 0; color: #1f2937;"><?php echo htmlspecialchars($cev['name']); ?></h5>
+                                <p style="margin: 0; color: #6b7280; font-size: 0.9rem;"><?php echo htmlspecialchars($cev['date']); ?> • <?php echo htmlspecialchars($cev['location']); ?></p>
                             </div>
-                            <span class="badge badge-info">Upcoming</span>
+                            <span class="badge badge-info">—</span>
                         </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 1rem;">
-                            <div>
-                                <h5 style="margin: 0 0 0.5rem 0; color: #1f2937;">AI & Machine Learning Seminar</h5>
-                                <p style="margin: 0; color: #6b7280; font-size: 0.9rem;">March 15, 2024 • Online Event</p>
-                            </div>
-                            <span class="badge badge-success">Completed</span>
-                        </div>
+                        <?php endforeach; ?>
+                        <?php if (empty($clubEvents)): ?>
+                        <div>No recent events.</div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -108,7 +157,7 @@
                         <div class="card-title">👥 Club Members</div>
                         <div style="display: flex; gap: 1rem; align-items: center;">
                             <input type="text" placeholder="Search members..." id="memberSearch" onkeyup="filterMembers()" style="padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 5px; font-size: 0.9rem;">
-                            <span class="badge badge-info" id="memberCountBadge">45 Total</span>
+                            <span class="badge badge-info" id="memberCountBadge"><?php echo $clubDetails ? count($clubMembers) . ' Total' : '0 Total'; ?></span>
                         </div>
                     </div>
                 </div>
@@ -118,38 +167,21 @@
                             <thead>
                                 <tr>
                                     <th>Name</th>
-                                    <th>Year</th>
-                                    <th>Department</th>
-                                    <th>Role</th>
+                                    <th>Email</th>
                                     <th>Joined Date</th>
-                                    <th>Status</th>
                                 </tr>
                             </thead>
                             <tbody id="membersTableBody">
+                                <?php foreach ($clubMembers as $m): ?>
                                 <tr>
-                                    <td><strong>Sarah Johnson</strong></td>
-                                    <td>3rd Year</td>
-                                    <td>Computer Science</td>
-                                    <td><span class="badge badge-warning">Leader</span></td>
-                                    <td>Sep 2023</td>
-                                    <td><span class="badge badge-success">Active</span></td>
+                                    <td><strong><?php echo htmlspecialchars($m['name']); ?></strong></td>
+                                    <td><?php echo htmlspecialchars($m['email']); ?></td>
+                                    <td><?php echo htmlspecialchars($m['joined_date']); ?></td>
                                 </tr>
-                                <tr>
-                                    <td>Michael Chen</td>
-                                    <td>2nd Year</td>
-                                    <td>Software Engineering</td>
-                                    <td><span class="badge badge-info">Vice President</span></td>
-                                    <td>Oct 2023</td>
-                                    <td><span class="badge badge-success">Active</span></td>
-                                </tr>
-                                <tr>
-                                    <td>Emma Davis</td>
-                                    <td>4th Year</td>
-                                    <td>Information Technology</td>
-                                    <td><span class="badge badge-info">Secretary</span></td>
-                                    <td>Sep 2023</td>
-                                    <td><span class="badge badge-success">Active</span></td>
-                                </tr>
+                                <?php endforeach; ?>
+                                <?php if (empty($clubMembers)): ?>
+                                <tr><td colspan="3">No members yet.</td></tr>
+                                <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
