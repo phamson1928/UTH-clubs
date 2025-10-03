@@ -5,34 +5,40 @@
         
         <!-- Admin Dashboard -->
         <div id="adminDashboard" style="display: none;">
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-number">12</div>
-                    <div class="stat-label">Total Clubs</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">24</div>
-                    <div class="stat-label">Active Events</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">456</div>
-                    <div class="stat-label">Registered Students</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">1,234</div>
-                    <div class="stat-label">Event Registrations</div>
-                </div>
-            </div>
+            <div class="stats-grid" id="adminStats"></div>
 
             <div style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
+                <button class="btn btn-primary" onclick="showAdminSection('users')">Manage Users</button>
                 <button class="btn btn-primary" onclick="showAdminSection('clubs')">Manage Clubs</button>
                 <button class="btn btn-primary" onclick="showAdminSection('events')">Manage Events</button>
-                <button class="btn btn-primary" onclick="showAdminSection('members')">Manage Members</button>
                 <button class="btn btn-primary" onclick="showAdminSection('reports')">View Reports</button>
             </div>
 
+            <!-- Admin Users Management -->
+            <div id="adminUsers" class="admin-section" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <h2>Manage Users</h2>
+                    <button class="btn btn-success" onclick="showAddUserModal()">Add User</button>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Student ID</th>
+                                <th>Role</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
             <!-- Admin Clubs Management -->
-            <div id="adminClubs" class="admin-section">
+            <div id="adminClubs" class="admin-section" style="display: none;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
                     <h2>Manage Clubs</h2>
                     <button class="btn btn-success" onclick="showAddClubModal()">Add New Club</button>
@@ -46,23 +52,10 @@
                                 <th>Leader</th>
                                 <th>Members</th>
                                 <th>Category</th>
-                                <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td>Tech Club</td>
-                                <td>Sarah Johnson</td>
-                                <td>45</td>
-                                <td>Technology</td>
-                                <td><span class="badge badge-success">Active</span></td>
-                                <td>
-                                    <button class="btn btn-secondary" onclick="editClub(1)">Edit</button>
-                                    <button class="btn btn-danger" onclick="deleteClub(1)">Delete</button>
-                                </td>
-                            </tr>
-                        </tbody>
+                        <tbody id="clubsTableBody"></tbody>
                     </table>
                 </div>
             </div>
@@ -83,65 +76,15 @@
                                 <th>Date</th>
                                 <th>Location</th>
                                 <th>Registrations</th>
-                                <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td>Tech Innovation Workshop</td>
-                                <td>Tech Club</td>
-                                <td>March 25, 2024</td>
-                                <td>Engineering Building</td>
-                                <td>35/50</td>
-                                <td><span class="badge badge-success">Active</span></td>
-                                <td>
-                                    <button class="btn btn-secondary" onclick="editEvent(1)">Edit</button>
-                                    <button class="btn btn-danger" onclick="deleteEvent(1)">Delete</button>
-                                </td>
-                            </tr>
-                        </tbody>
+                        <tbody id="eventsTableBody"></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- Admin Members Management -->
-            <div id="adminMembers" class="admin-section" style="display: none;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                    <h2>Manage Members</h2>
-                    <button class="btn btn-success" onclick="showAddMemberModal()">Add New Member</button>
-                </div>
-                
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Student ID</th>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Department</th>
-                                <th>Year</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>CS2021001</td>
-                                <td>Sarah Johnson</td>
-                                <td>sarah.johnson@uth.edu</td>
-                                <td>Computer Science</td>
-                                <td>3rd Year</td>
-                                <td><span class="badge badge-success">Active</span></td>
-                                <td>
-                                    <button class="btn btn-secondary" onclick="viewMemberDetails(1)">View</button>
-                                    <button class="btn btn-primary" onclick="editMember(1)">Edit</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+
 
             <!-- Admin Reports -->
             <div id="adminReports" class="admin-section" style="display: none;">
