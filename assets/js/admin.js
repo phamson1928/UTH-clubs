@@ -13,6 +13,17 @@ function showAdminSection(sectionName) {
 
   if (targetSection) {
     targetSection.style.display = "block";
+    
+    // Load data for specific sections
+    if (sectionName === 'requests') {
+      loadRequests();
+    } else if (sectionName === 'users') {
+      loadUsers();
+    } else if (sectionName === 'clubs') {
+      loadClubs();
+    } else if (sectionName === 'events') {
+      loadEvents();
+    }
   } else {
     console.error(
       `Section not found: admin${
@@ -730,6 +741,69 @@ function deleteUser(id) {
     .catch(() => showNotification("Delete failed", "error"));
 }
 
+function loadRequests() {
+  if (!currentUser || currentUser.role !== 'admin') {
+    return;
+  }
+  
+  fetch('actions/admin/requests.php?action=list')
+    .then(r => r.json())
+    .then(d => {
+      if (!d.success) return;
+      const tbody = document.getElementById('requestsTableBody');
+      if (tbody) {
+        tbody.innerHTML = d.data.map(req => `
+          <tr data-id="${req.id}">
+            <td>${req.user_name}<br><small>${req.email}</small></td>
+            <td>${req.club_name}</td>
+            <td>${new Date(req.joined_date).toLocaleDateString()}</td>
+            <td><span class="badge badge-warning">Pending</span></td>
+            <td>
+              <button class="btn btn-success" onclick="approveRequest(${req.id})">Approve</button>
+              <button class="btn btn-danger" onclick="rejectRequest(${req.id})">Reject</button>
+            </td>
+          </tr>
+        `).join('');
+      }
+    })
+    .catch(error => console.error('Error loading requests:', error));
+}
+
+function approveRequest(id) {
+  const fd = new FormData();
+  fd.append('action', 'approve');
+  fd.append('id', id);
+  fetch('actions/admin/requests.php', { method: 'POST', body: fd })
+    .then(r => r.json())
+    .then(d => {
+      if (d.success) {
+        showNotification('Request approved!', 'success');
+        loadRequests();
+      } else {
+        showNotification(d.message || 'Approve failed', 'error');
+      }
+    })
+    .catch(() => showNotification('Approve failed', 'error'));
+}
+
+function rejectRequest(id) {
+  if (!confirm('Are you sure you want to reject this request?')) return;
+  const fd = new FormData();
+  fd.append('action', 'reject');
+  fd.append('id', id);
+  fetch('actions/admin/requests.php', { method: 'POST', body: fd })
+    .then(r => r.json())
+    .then(d => {
+      if (d.success) {
+        showNotification('Request rejected!', 'success');
+        loadRequests();
+      } else {
+        showNotification(d.message || 'Reject failed', 'error');
+      }
+    })
+    .catch(() => showNotification('Reject failed', 'error'));
+}
+
 // Loaders
 function loadStats() {
   // Check session first
@@ -929,6 +1003,10 @@ document.addEventListener("DOMContentLoaded", function () {
         button.addEventListener("click", (e) => {
           e.preventDefault();
           showAdminSection(sectionName);
+          // Load requests when requests section is shown
+          if (sectionName === 'requests') {
+            loadRequests();
+          }
         });
       }
     }
@@ -944,6 +1022,7 @@ document.addEventListener("DOMContentLoaded", function () {
           loadUsers();
           loadClubs();
           loadEvents();
+          loadRequests();
           showAdminSection("users");
         }
       }, 100);
@@ -958,6 +1037,7 @@ function initializeAdminFunctions() {
     loadUsers();
     loadClubs();
     loadEvents();
+    loadRequests();
     showAdminSection("users");
   }
 }
@@ -969,3 +1049,6 @@ window.loadStats = loadStats;
 window.loadUsers = loadUsers;
 window.loadClubs = loadClubs;
 window.loadEvents = loadEvents;
+window.loadRequests = loadRequests;
+window.approveRequest = approveRequest;
+window.rejectRequest = rejectRequest;

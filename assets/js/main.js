@@ -205,7 +205,7 @@ function registerForEvent(eventId) {
     .then((data) => {
       if (data.success) {
         showNotification("Successfully registered for the event!", "success");
-        // Update seats available for this event card only
+        // Update UI for successful registration
         try {
           const card = Array.from(
             document.querySelectorAll("#eventsList .card")
@@ -215,9 +215,20 @@ function registerForEvent(eventId) {
               ?.getAttribute("onclick")
               ?.includes(`registerForEvent(${eventId})`)
           );
-          if (card && data.seats_left !== undefined) {
-            const seatsElement = card.querySelector(".seats-available");
-            if (seatsElement) seatsElement.textContent = data.seats_left;
+          if (card) {
+            // Update seats available
+            if (data.seats_left !== undefined) {
+              const seatsElement = card.querySelector(".seats-available");
+              if (seatsElement) seatsElement.textContent = data.seats_left;
+            }
+            // Update button to show registered state
+            const button = card.querySelector("button.btn.btn-primary");
+            if (button) {
+              button.textContent = "Already Registered";
+              button.className = "btn btn-secondary";
+              button.disabled = true;
+              button.removeAttribute("onclick");
+            }
           }
         } catch (e) {}
       } else {
@@ -351,7 +362,8 @@ function waitForAdminFunctions() {
         typeof loadStats === "function" &&
         typeof loadUsers === "function" &&
         typeof loadClubs === "function" &&
-        typeof loadEvents === "function"
+        typeof loadEvents === "function" &&
+        typeof loadRequests === "function"
       ) {
         resolve();
       } else {
@@ -376,6 +388,7 @@ function initializeDashboard() {
         loadUsers();
         loadClubs();
         loadEvents();
+        loadRequests();
         showAdminSection("users"); // Show users section by default
 
         // Re-initialize admin event listeners after loading
@@ -413,6 +426,7 @@ function initializeAdminEventListeners() {
     if (buttonText.includes("users")) sectionName = "users";
     else if (buttonText.includes("clubs")) sectionName = "clubs";
     else if (buttonText.includes("events")) sectionName = "events";
+    else if (buttonText.includes("requests")) sectionName = "requests";
     else if (buttonText.includes("reports")) sectionName = "reports";
 
     if (sectionName) {
