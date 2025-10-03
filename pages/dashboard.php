@@ -12,7 +12,6 @@
                 <button class="btn btn-primary" onclick="showAdminSection('clubs')">Manage Clubs</button>
                 <button class="btn btn-primary" onclick="showAdminSection('events')">Manage Events</button>
                 <button class="btn btn-primary" onclick="showAdminSection('requests')">Join Requests</button>
-                <button class="btn btn-primary" onclick="showAdminSection('reports')">View Reports</button>
             </div>
 
             <!-- Admin Users Management -->
@@ -109,32 +108,7 @@
                 </div>
             </div>
 
-            <!-- Admin Reports -->
-            <div id="adminReports" class="admin-section" style="display: none;">
-                <h2 style="margin-bottom: 2rem;">Reports & Analytics</h2>
-                
-                <div style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
-                    <button class="btn btn-success" onclick="exportToExcel()">📊 Export to Excel</button>
-                    <button class="btn btn-danger" onclick="exportToPDF()">📄 Export to PDF</button>
-                </div>
 
-                <div class="card-grid">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">Club Membership Statistics</div>
-                        </div>
-                        <div class="card-content">
-                            <div style="margin-bottom: 1rem;">
-                                <strong>Tech Club:</strong> 45 members<br>
-                                <strong>Soccer Club:</strong> 52 members<br>
-                                <strong>Music Club:</strong> 41 members<br>
-                                <strong>Art Club:</strong> 32 members<br>
-                                <strong>Science Society:</strong> 38 members
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <!-- Student Dashboard -->
