@@ -8,6 +8,8 @@ CREATE TABLE users (
     student_id VARCHAR(20) UNIQUE,
     password VARCHAR(255) NOT NULL,
     role ENUM('student', 'admin') DEFAULT 'student',
+    email_verified BOOLEAN DEFAULT FALSE,
+    verification_token VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -43,6 +45,7 @@ CREATE TABLE events (
   date DATE,
   location VARCHAR(255),
   max_participants INT,
+  description TEXT,
   event_image VARCHAR(255),
   FOREIGN KEY (club_id) REFERENCES clubs(id)
 );
