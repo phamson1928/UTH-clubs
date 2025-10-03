@@ -13,7 +13,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit;
     }
     
-    // Check if email exists
     $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
     $stmt->execute([$email]);
     
@@ -22,7 +21,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit;
     }
     
-    // Insert new user
     $stmt = $pdo->prepare("INSERT INTO users (name, email, student_id, password, role) VALUES (?, ?, ?, ?, 'student')");
     
     if ($stmt->execute([$name, $email, $student_id, $password])) {
