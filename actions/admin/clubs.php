@@ -13,7 +13,6 @@ $action = $_GET['action'] ?? $_POST['action'] ?? 'list';
 
 try {
     if ($action === 'list') {
-        // include activities and club_image in list response
         $stmt = $pdo->query("SELECT c.id, c.name, c.description, c.category, c.schedule_meeting, c.activities, c.club_image, c.leader_id,
                                     u.name AS leader_name,
                                     (SELECT COUNT(*) FROM club_members cm WHERE cm.club_id = c.id) AS member_count
@@ -46,7 +45,7 @@ try {
             echo json_encode(['success' => false, 'message' => 'Name is required']);
             exit;
         }
-        // handle image upload if provided
+
         $clubImagePath = null;
         if (!empty($_FILES['club_image']) && $_FILES['club_image']['error'] === UPLOAD_ERR_OK) {
             $uploadDir = __DIR__ . '/../../uploads/clubs/';
@@ -62,13 +61,11 @@ try {
             $newName = uniqid('club_', true) . '.' . $ext;
             $dest = $uploadDir . $newName;
             if (move_uploaded_file($tmp, $dest)) {
-                // store web-accessible relative path
                 $clubImagePath = 'uploads/clubs/' . $newName;
             }
         }
         
         $stmt = $pdo->prepare('INSERT INTO clubs (name, description, category, leader_id, schedule_meeting) VALUES (?, ?, ?, ?, ?)');
-        // include activities and club_image if available
         if ($clubImagePath !== null) {
             $stmt = $pdo->prepare('INSERT INTO clubs (name, description, category, leader_id, activities, schedule_meeting, club_image) VALUES (?, ?, ?, ?, ?, ?, ?)');
             $stmt->execute([$name, $description, $category, $leaderId, $activities, $schedule, $clubImagePath]);
@@ -89,7 +86,6 @@ try {
         $leaderId = !empty($_POST['leader_id']) ? (int)$_POST['leader_id'] : null;
         $schedule = $_POST['schedule_meeting'] ?? '';
         $activities = $_POST['activities'] ?? '';
-        // handle optional new image upload
         $clubImagePath = null;
         if (!empty($_FILES['club_image']) && $_FILES['club_image']['error'] === UPLOAD_ERR_OK) {
             $uploadDir = __DIR__ . '/../../uploads/clubs/';
@@ -106,7 +102,6 @@ try {
             $dest = $uploadDir . $newName;
             if (move_uploaded_file($tmp, $dest)) {
                 $clubImagePath = 'uploads/clubs/' . $newName;
-                // remove old image if exists
                 $old = $pdo->prepare('SELECT club_image FROM clubs WHERE id = ?');
                 $old->execute([$id]);
                 $oldPath = $old->fetchColumn();
@@ -116,7 +111,6 @@ try {
                 }
             }
         }
-        // prepare update with/without image
         if ($clubImagePath !== null) {
             $stmt = $pdo->prepare('UPDATE clubs SET name=?, description=?, category=?, leader_id=?, activities=?, schedule_meeting=?, club_image=? WHERE id=?');
             $stmt->execute([$name, $description, $category, $leaderId, $activities, $schedule, $clubImagePath, $id]);
@@ -132,8 +126,6 @@ try {
     if ($action === 'delete') {
         $id = (int)($_POST['id'] ?? 0);
         if ($id <= 0) { echo json_encode(['success' => false, 'message' => 'Invalid id']); exit; }
-        // Optional: cascade delete related rows
-        // delete club image file if exists
         $old = $pdo->prepare('SELECT club_image FROM clubs WHERE id = ?');
         $old->execute([$id]);
         $oldPath = $old->fetchColumn();
@@ -154,5 +146,7 @@ try {
     echo json_encode(['success' => false, 'message' => 'Server error']);
 }
 ?>
+
+
 
 

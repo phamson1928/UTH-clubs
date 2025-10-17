@@ -84,18 +84,6 @@ if (!empty($activeClubId)) {
                                 <?php echo $clubDetails ? htmlspecialchars($clubDetails['schedule_meeting'] ?: '') : ''; ?>
                             </p>
                         </div>
-                        <div>
-                            <h4 style="color: #008689; margin-bottom: 0.5rem;">📧 Contact</h4>
-                            <p style="margin: 0;">
-                                <?php if ($clubDetails && !empty($clubDetails['leader_email'])):
-                                    $mailto = 'mailto:' . rawurlencode($clubDetails['leader_email']);
-                                ?>
-                                    <a href="<?php echo htmlspecialchars($mailto); ?>"><?php echo htmlspecialchars($clubDetails['leader_email']); ?></a>
-                                <?php else: ?>
-                                    —
-                                <?php endif; ?>
-                            </p>
-                        </div>
                     </div>
                     
                     <div>
