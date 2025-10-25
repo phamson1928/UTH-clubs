@@ -110,45 +110,5 @@
 
 
         </div>
-
-        <!-- Student Dashboard -->
-        <div id="studentDashboard" style="display: none;">
-            <h2 style="margin-bottom: 2rem;">My Dashboard</h2>
-            
-            <div class="card-grid">
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">My Clubs</div>
-                    </div>
-                    <div class="card-content">
-                        <p><strong>Tech Club</strong> - Member since Jan 2024</p>
-                        <p><strong>Art Club</strong> - Member since Feb 2024</p>
-                        <button class="btn btn-primary" onclick="showSection('clubs')">Browse More Clubs</button>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">My Event Registrations</div>
-                    </div>
-                    <div class="card-content">
-                        <p><strong>Tech Innovation Workshop</strong> - March 25, 2024</p>
-                        <p><strong>Photography Exhibition</strong> - March 28, 2024</p>
-                        <button class="btn btn-primary" onclick="showSection('events')">Browse More Events</button>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">Participation History</div>
-                    </div>
-                    <div class="card-content">
-                        <p><strong>Winter Art Show</strong> - Attended (Feb 2024)</p>
-                        <p><strong>Coding Bootcamp</strong> - Attended (Jan 2024)</p>
-                        <p><strong>Debate Workshop</strong> - Attended (Dec 2023)</p>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 </div>

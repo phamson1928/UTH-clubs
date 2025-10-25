@@ -4,6 +4,13 @@ let currentSection = "home";
 
 // Navigation
 function showSection(sectionName) {
+  // Prevent non-admin users from accessing dashboard
+  if (
+    sectionName === "dashboard" && (!currentUser || currentUser.role !== "admin")
+  ) {
+    showNotification("Dashboard is for admin only", "error");
+    return;
+  }
   // Hide all sections
   document.querySelectorAll(".section").forEach((section) => {
     section.classList.remove("active");
@@ -357,12 +364,17 @@ function updateAuthUI() {
       </div>
     `;
 
-    // Add dashboard link
-    if (!document.querySelector('a[onclick*="dashboard"]')) {
-      const dashboardLi = document.createElement("li");
-      dashboardLi.innerHTML =
-        '<a href="#" onclick="showSection(\'dashboard\'); return false;">Dashboard</a>';
-      navLinks.appendChild(dashboardLi);
+    // Add dashboard link only for admins; remove if not admin
+    const existingDashboardLink = document.querySelector('a[onclick*="dashboard"]');
+    if (currentUser.role === "admin") {
+      if (!existingDashboardLink) {
+        const dashboardLi = document.createElement("li");
+        dashboardLi.innerHTML =
+          '<a href="#" onclick="showSection(\'dashboard\'); return false;">Dashboard</a>';
+        navLinks.appendChild(dashboardLi);
+      }
+    } else if (existingDashboardLink) {
+      existingDashboardLink.parentElement.remove();
     }
   } else {
     authSection.innerHTML = `
@@ -429,9 +441,12 @@ function initializeDashboard() {
       }
     });
   } else if (currentUser) {
-    // Show student dashboard
+    // Non-admin users should not see any dashboard
     document.getElementById("adminDashboard").style.display = "none";
-    document.getElementById("studentDashboard").style.display = "block";
+    const studentDash = document.getElementById("studentDashboard");
+    if (studentDash) studentDash.style.display = "none";
+    // Redirect to home if somehow invoked
+    showSection("home");
   }
 }
 
@@ -524,7 +539,14 @@ document.addEventListener("DOMContentLoaded", function () {
 // Handle browser back/forward buttons
 window.addEventListener("popstate", function (event) {
   const urlParams = new URLSearchParams(window.location.search);
-  const sectionName = urlParams.get("section") || "home";
+  let sectionName = urlParams.get("section") || "home";
+
+  // Guard: prevent non-admins from navigating to dashboard via browser controls
+  if (
+    sectionName === "dashboard" && (!currentUser || currentUser.role !== "admin")
+  ) {
+    sectionName = "home";
+  }
 
   window.isPopstateNavigation = true;
 
