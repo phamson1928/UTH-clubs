@@ -173,7 +173,7 @@ function viewClubDetails(clubId) {
 
 function filterClubs() {
   const searchTerm = document.getElementById("clubSearch").value.toLowerCase();
-  const category = document.getElementById("clubCategory").value;
+  const category = (document.getElementById("clubCategory").value || "").toLowerCase();
   const clubs = document.querySelectorAll("#clubsList .card");
 
   clubs.forEach((club) => {
@@ -181,7 +181,7 @@ function filterClubs() {
     const clubCategory = club.getAttribute("data-category");
 
     const matchesSearch = title.includes(searchTerm);
-    const matchesCategory = !category || clubCategory === category;
+    const matchesCategory = !category || (clubCategory || "").includes(category);
 
     if (matchesSearch && matchesCategory) {
       club.style.display = "block";

@@ -24,13 +24,7 @@ try {
             </div>
             <div class="filter-group">
                 <label>Category</label>
-                <select id="clubCategory" onchange="filterClubs()">
-                    <option value="">All Categories</option>
-                    <option value="technology">Technology</option>
-                    <option value="arts">Arts</option>
-                    <option value="sports">Sports</option>
-                    <option value="academic">Academic</option>
-                </select>
+                <input type="text" id="clubCategory" placeholder="Type category..." onkeyup="filterClubs()">
             </div>
         </div>
 
