@@ -374,33 +374,6 @@ function deleteEvent(eventId) {
   }
 }
 
-function editMember(memberId) {
-  // Sample data for editing
-  const memberData = {
-    1: {
-      name: "Sarah Johnson",
-      studentId: "CS2021001",
-      email: "sarah.johnson@uth.edu",
-      department: "Computer Science",
-      year: "3rd Year",
-      status: "Active",
-    },
-  };
-
-  const member = memberData[memberId];
-  if (member) {
-    document.getElementById("editMemberId").value = memberId;
-    document.getElementById("editMemberName").value = member.name;
-    document.getElementById("editMemberStudentId").value = member.studentId;
-    document.getElementById("editMemberEmail").value = member.email;
-    document.getElementById("editMemberDepartment").value = member.department;
-    document.getElementById("editMemberYear").value = member.year;
-    document.getElementById("editMemberStatus").value = member.status;
-
-    document.getElementById("editMemberModal").style.display = "block";
-  }
-}
-
 // Users CRUD helpers
 function showAddUserModal() {
   document.getElementById("addUserModal").style.display = "block";
