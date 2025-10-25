@@ -76,13 +76,7 @@
             </div>
             <div class="form-group">
                 <label class="form-label">Category</label>
-                <select class="form-input" id="clubCategorySelect" required>
-                    <option value="">Select Category</option>
-                    <option value="technology">Technology</option>
-                    <option value="arts">Arts</option>
-                    <option value="sports">Sports</option>
-                    <option value="academic">Academic</option>
-                </select>
+                <input type="text" class="form-input" id="clubCategoryInput" placeholder="Enter category" required>
             </div>
             <div class="form-group">
                 <label class="form-label">Leader</label>
@@ -292,13 +286,7 @@
             </div>
             <div class="form-group">
                 <label class="form-label">Category</label>
-                <select class="form-input" id="editClubCategory" required>
-                    <option value="">Select Category</option>
-                    <option value="technology">Technology</option>
-                    <option value="arts">Arts</option>
-                    <option value="sports">Sports</option>
-                    <option value="academic">Academic</option>
-                </select>
+                <input type="text" class="form-input" id="editClubCategoryInput" placeholder="Enter category" required>
             </div>
             <div class="form-group">
                 <label class="form-label">Leader</label>

@@ -133,7 +133,7 @@ function handleAddClub(event) {
   );
   formData.append(
     "category",
-    document.getElementById("clubCategorySelect").value
+    document.getElementById("clubCategoryInput").value
   );
   formData.append("leader_id", document.getElementById("clubLeader").value);
   formData.append(
@@ -193,7 +193,7 @@ function editClub(clubId) {
     .textContent.trim();
   document.getElementById("editClubDescription").value =
     row.getAttribute("data-description") || "";
-  document.getElementById("editClubCategory").value =
+  document.getElementById("editClubCategoryInput").value =
     row.getAttribute("data-category") || "";
   document.getElementById("editClubLeader").value =
     row.getAttribute("data-leader-id") || "";
@@ -226,7 +226,7 @@ function handleEditClub(event) {
   );
   formData.append(
     "category",
-    document.getElementById("editClubCategory").value
+    document.getElementById("editClubCategoryInput").value
   );
   formData.append("leader_id", document.getElementById("editClubLeader").value);
   formData.append(
