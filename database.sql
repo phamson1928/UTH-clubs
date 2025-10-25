@@ -1,6 +1,7 @@
 CREATE DATABASE uth_clubs;
 USE uth_clubs;
 
+-- Bảng người dùng
 CREATE TABLE users (
     id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(100) NOT NULL,
@@ -13,31 +14,35 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Thêm tài khoản mẫu
 INSERT INTO users (name, email, password, role) VALUES 
-('Admin User', 'admin@ut.edu.vn', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin'),
-('John Doe', 'john@ut.edu.vn', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'student');
+('Quản trị viên', 'admin@ut.edu.vn', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin'),
+('Nguyễn Văn Nam', 'nam@ut.edu.vn', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'student');
 
+-- Bảng câu lạc bộ
 CREATE TABLE clubs (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
   description TEXT,
   category VARCHAR(50),
   leader_id INT,
-  activities TEXT,         
+  activities TEXT,
   schedule_meeting VARCHAR(255),
   club_image VARCHAR(255),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (leader_id) REFERENCES users(id)
 );
 
+-- Thêm dữ liệu CLB (toàn tiếng Việt)
 INSERT INTO clubs (name, description, category, leader_id, activities, schedule_meeting) VALUES 
-('Tech Club', 'Explore the world of technology, programming, and innovation. Join us for workshops, hackathons, and tech talks.', 'technology', 2, 'Weekly Coding Sessions, Monthly Hackathons, Tech Talks, Startup Incubator', 'Every Tuesday, 6:00 PM'),
-('Art Club', 'Express your creativity through various art forms. From painting to digital art, we welcome all artists.', 'arts', 2, 'Weekly Art Sessions, Photography Walks, Monthly Exhibitions, Collaborative Projects', 'Every Friday, 4:00 PM'),
-('Debate Society', 'Sharpen your public speaking and critical thinking skills through engaging debates and discussions.', 'academic', 2, 'Weekly Debates, Public Speaking Workshops, Inter-University Competitions, Research & Analysis', 'Every Wednesday, 7:00 PM'),
-('Soccer Club', 'Join our soccer team for regular practice sessions, friendly matches, and tournaments.', 'sports', 2, 'Training Sessions, Inter-Department Matches, Skills Workshops, Fitness Programs', 'Every Monday & Thursday, 5:00 PM'),
-('Science Society', 'Explore scientific discoveries, conduct experiments, and participate in science fairs and competitions.', 'academic', 2, 'Laboratory Sessions, Science Fair Preparation, Research Presentations, Field Trips', 'Every Saturday, 2:00 PM'),
-('Music Club', 'Share your love for music through performances, jam sessions, and music appreciation events.', 'arts', 2, 'Jam Sessions, Open Mic Nights, Music Theory Workshops, Concert Performances', 'Every Sunday, 3:00 PM');
+('CLB Công Nghệ', 'Khám phá thế giới công nghệ, lập trình và sáng tạo. Tham gia các buổi workshop, hackathon và tọa đàm công nghệ.', 'công nghệ', 2, 'Buổi học lập trình hàng tuần, Cuộc thi Hackathon hàng tháng, Tọa đàm công nghệ, Hỗ trợ khởi nghiệp', 'Thứ Ba hàng tuần, 18:00'),
+('CLB Nghệ Thuật', 'Thỏa sức sáng tạo qua nhiều loại hình nghệ thuật: vẽ, nhạc, nhiếp ảnh, và nghệ thuật số.', 'nghệ thuật', 2, 'Sinh hoạt vẽ tranh hàng tuần, Dã ngoại nhiếp ảnh, Triển lãm hàng tháng, Dự án sáng tạo nhóm', 'Thứ Sáu hàng tuần, 16:00'),
+('CLB Tranh Biện', 'Rèn luyện kỹ năng hùng biện và tư duy phản biện thông qua các buổi tranh luận và hội thảo.', 'học thuật', 2, 'Tranh biện hàng tuần, Hội thảo nói trước công chúng, Thi đấu liên trường, Phân tích & nghiên cứu', 'Thứ Tư hàng tuần, 19:00'),
+('CLB Bóng Đá', 'Tham gia đội bóng của trường với các buổi tập luyện, giao hữu và giải đấu.', 'thể thao', 2, 'Buổi tập luyện, Trận giao hữu giữa khoa, Huấn luyện kỹ năng, Chương trình rèn thể lực', 'Thứ Hai & Thứ Năm, 17:00'),
+('CLB Khoa Học', 'Khám phá khoa học, tham gia nghiên cứu và hội thi khoa học trong và ngoài trường.', 'học thuật', 2, 'Thực hành thí nghiệm, Chuẩn bị hội chợ khoa học, Báo cáo nghiên cứu, Tham quan thực tế', 'Thứ Bảy hàng tuần, 14:00'),
+('CLB Âm Nhạc', 'Cùng chia sẻ đam mê âm nhạc qua biểu diễn, giao lưu và các buổi workshop.', 'nghệ thuật', 2, 'Buổi jam nhạc, Đêm open mic, Workshop nhạc lý, Biểu diễn hòa nhạc', 'Chủ Nhật hàng tuần, 15:00');
 
+-- Bảng sự kiện
 CREATE TABLE events (
   id INT AUTO_INCREMENT PRIMARY KEY,
   club_id INT,
@@ -50,15 +55,18 @@ CREATE TABLE events (
   FOREIGN KEY (club_id) REFERENCES clubs(id)
 );
 
-CREATE TABLE event_registrations (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  event_id INT,
-  user_id INT,
-  status ENUM('registered','attended','cancelled') DEFAULT 'registered',
-  FOREIGN KEY (event_id) REFERENCES events(id),
-  FOREIGN KEY (user_id) REFERENCES users(id)
-);
+-- Thêm sự kiện mẫu
+INSERT INTO events (club_id, name, date, location, max_participants, description) VALUES 
+(1, 'Cuộc thi Lập trình Hackathon 2024', '2024-02-15', 'Phòng máy tính A', 50, 'Cuộc thi hackathon nhằm phát triển sản phẩm công nghệ trong 24 giờ.'),
+(1, 'Hội thảo Trí tuệ Nhân tạo', '2024-02-20', 'Giảng đường 1', 30, 'Buổi hội thảo chia sẻ kiến thức về AI và Machine Learning.'),
+(2, 'Triển lãm Nghệ thuật Sinh viên', '2024-02-18', 'Phòng Triển lãm Nghệ thuật', 100, 'Trưng bày các tác phẩm của thành viên CLB Nghệ thuật.'),
+(2, 'Cuộc thi Nhiếp ảnh Toàn trường', '2024-02-25', 'Khuôn viên trường', 25, 'Cuộc thi chụp ảnh với chủ đề “Khoảnh khắc sinh viên”.'),
+(3, 'Giải Tranh biện Liên Trường', '2024-02-22', 'Hội trường lớn', 200, 'Cuộc thi tranh biện với sự tham gia của nhiều trường đại học.'),
+(4, 'Giải Bóng đá Sinh viên UTH', '2024-02-28', 'Sân bóng đá', 22, 'Giải bóng đá giao hữu giữa các khoa.'),
+(5, 'Hội chợ Khoa học 2024', '2024-03-05', 'Tòa nhà Khoa học', 80, 'Trưng bày các mô hình nghiên cứu và thí nghiệm khoa học.'),
+(6, 'Đêm Nhạc Sinh viên UTH', '2024-03-10', 'Hội trường âm nhạc', 150, 'Chương trình biểu diễn âm nhạc của các thành viên CLB.');
 
+-- Bảng thành viên CLB
 CREATE TABLE club_members (
   id INT AUTO_INCREMENT PRIMARY KEY,
   club_id INT,
@@ -68,23 +76,25 @@ CREATE TABLE club_members (
   FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
-INSERT INTO events (club_id, name, date, location, max_participants) VALUES 
-(1, 'Hackathon 2024', '2024-02-15', 'Computer Lab A', 50),
-(1, 'AI Workshop', '2024-02-20', 'Lecture Hall 1', 30),
-(2, 'Art Exhibition', '2024-02-18', 'Gallery Hall', 100),
-(2, 'Photography Contest', '2024-02-25', 'Campus Garden', 25),
-(3, 'Inter-University Debate', '2024-02-22', 'Main Auditorium', 200),
-(4, 'Soccer Tournament', '2024-02-28', 'Sports Field', 22),
-(5, 'Science Fair', '2024-03-05', 'Science Building', 80),
-(6, 'Music Concert', '2024-03-10', 'Music Hall', 150);
+-- Bảng đăng ký sự kiện
+CREATE TABLE event_registrations (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  event_id INT,
+  user_id INT,
+  status ENUM('registered','attended','cancelled') DEFAULT 'registered',
+  FOREIGN KEY (event_id) REFERENCES events(id),
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
 
+-- Thêm thêm sinh viên mẫu
 INSERT INTO users (name, email, student_id, password, role) VALUES 
-('Nguyen Van A', 'nguyenvana@ut.edu.vn', 'SV001', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'student'),
-('Tran Thi B', 'tranthib@ut.edu.vn', 'SV002', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'student'),
-('Le Van C', 'levanc@ut.edu.vn', 'SV003', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'student'),
-('Pham Thi D', 'phamthid@ut.edu.vn', 'SV004', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'student'),
-('Hoang Van E', 'hoangvane@ut.edu.vn', 'SV005', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'student');
+('Nguyễn Văn A', 'nguyenvana@ut.edu.vn', 'SV001', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'student'),
+('Trần Thị B', 'tranthib@ut.edu.vn', 'SV002', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'student'),
+('Lê Văn C', 'levanc@ut.edu.vn', 'SV003', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'student'),
+('Phạm Thị D', 'phamthid@ut.edu.vn', 'SV004', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'student'),
+('Hoàng Văn E', 'hoangvane@ut.edu.vn', 'SV005', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'student');
 
+-- Thêm thành viên vào CLB
 INSERT INTO club_members (club_id, user_id, joined_date) VALUES 
 (1, 2, '2024-01-15'),
 (1, 3, '2024-01-20'),
@@ -96,6 +106,7 @@ INSERT INTO club_members (club_id, user_id, joined_date) VALUES
 (5, 3, '2024-02-01'),
 (6, 4, '2024-02-03');
 
+-- Đăng ký sự kiện
 INSERT INTO event_registrations (event_id, user_id, status) VALUES 
 (1, 2, 'registered'),
 (1, 3, 'registered'),
