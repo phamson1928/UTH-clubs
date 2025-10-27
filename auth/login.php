@@ -21,13 +21,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if (password_verify($password, $user['password'])) {
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['user_name'] = $user['name'];
-                $_SESSION['user_role'] = $user['role'];
+                $role = strtolower(trim($user['role']));
+                $_SESSION['user_role'] = $role;
                 
                 error_log("Login successful for: " . $user['name']);
                 echo json_encode(['success' => true, 'user' => [
                     'name' => $user['name'],
                     'email' => $user['email'],
-                    'role' => $user['role']
+                    'role' => $role
                 ]]);
             } else {
                 error_log("Password verification failed");

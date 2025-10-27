@@ -416,8 +416,10 @@ function waitForAdminFunctions() {
 function initializeDashboard() {
   if (currentUser && currentUser.role === "admin") {
     // Show admin dashboard
-    document.getElementById("adminDashboard").style.display = "block";
-    document.getElementById("studentDashboard").style.display = "none";
+    const adminDashboard = document.getElementById("adminDashboard");
+    if (adminDashboard) adminDashboard.style.display = "block";
+    const studentDashboard = document.getElementById("studentDashboard");
+    if (studentDashboard) studentDashboard.style.display = "none";
 
     // Wait for admin functions to be available, then load data
     waitForAdminFunctions().then(() => {
