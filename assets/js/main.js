@@ -6,7 +6,8 @@ let currentSection = "home";
 function showSection(sectionName) {
   // Prevent non-admin users from accessing dashboard
   if (
-    sectionName === "dashboard" && (!currentUser || currentUser.role !== "admin")
+    sectionName === "dashboard" &&
+    (!currentUser || currentUser.role !== "admin")
   ) {
     showNotification("Dashboard is for admin only", "error");
     return;
@@ -106,74 +107,11 @@ function joinClub(clubId) {
     .catch(() => showNotification("Failed to join club", "error"));
 }
 
-function viewClubDetails(clubId) {
-  // Sample club data - in a real app, this would come from a database
-  const clubData = {
-    1: {
-      name: "💻 Tech Club",
-      leader: "Sarah Johnson",
-      category: "Technology",
-      memberCount: "45 Members",
-      schedule: "Every Tuesday, 6:00 PM",
-      description:
-        "The Tech Club is a vibrant community of technology enthusiasts dedicated to exploring the latest innovations in software development, artificial intelligence, and emerging technologies. We organize workshops, hackathons, and tech talks featuring industry professionals.",
-      activities: [
-        {
-          title: "💻 Weekly Coding Sessions",
-          desc: "Collaborative programming sessions where members work on projects together and learn new technologies.",
-        },
-        {
-          title: "🏆 Monthly Hackathons",
-          desc: "24-hour coding competitions with exciting themes and prizes for innovative solutions.",
-        },
-        {
-          title: "🎤 Tech Talks",
-          desc: "Guest speakers from leading tech companies share insights about industry trends and career opportunities.",
-        },
-        {
-          title: "🚀 Startup Incubator",
-          desc: "Support and mentorship for members interested in launching their own tech startups.",
-        },
-      ],
-    },
-  };
-
-  const club = clubData[clubId];
-  if (!club) return;
-
-  // Update club details
-  document.getElementById("clubDetailName").textContent = club.name;
-  document.getElementById("clubDetailCategory").textContent = club.category;
-  document.getElementById("clubDetailMemberCount").textContent =
-    club.memberCount;
-  document.getElementById("clubDetailLeader").textContent = club.leader;
-  document.getElementById("clubDetailSchedule").textContent = club.schedule;
-  document.getElementById("clubDetailDescription").textContent =
-    club.description;
-
-  // Update activities
-  const activitiesContainer = document.getElementById("clubActivities");
-  activitiesContainer.innerHTML = club.activities
-    .map(
-      (activity) => `
-        <div style="padding: 1rem; border: 1px solid #e5e7eb; border-radius: 8px;">
-            <h5 style="color: #008689; margin-bottom: 0.5rem;">${activity.title}</h5>
-            <p style="margin: 0; font-size: 0.9rem; color: #6b7280;">${activity.desc}</p>
-        </div>
-    `
-    )
-    .join("");
-
-  // Store current club ID for join functionality
-  window.currentClubId = clubId;
-
-  // Show club details section
-  showSection("clubDetails");
-}
-
 function filterClubs() {
   const searchTerm = document.getElementById("clubSearch").value.toLowerCase();
-  const category = (document.getElementById("clubCategory").value || "").toLowerCase();
+  const category = (
+    document.getElementById("clubCategory").value || ""
+  ).toLowerCase();
   const clubs = document.querySelectorAll("#clubsList .card");
 
   clubs.forEach((club) => {
@@ -181,7 +119,8 @@ function filterClubs() {
     const clubCategory = club.getAttribute("data-category");
 
     const matchesSearch = title.includes(searchTerm);
-    const matchesCategory = !category || (clubCategory || "").includes(category);
+    const matchesCategory =
+      !category || (clubCategory || "").includes(category);
 
     if (matchesSearch && matchesCategory) {
       club.style.display = "block";
@@ -238,7 +177,7 @@ function registerForEvent(eventId) {
               button.removeAttribute("onclick");
             }
           }
-          
+
           // Update home page featured events
           const homeCard = Array.from(
             document.querySelectorAll("#upcomingEvents .card")
@@ -329,11 +268,6 @@ window.onclick = function (event) {
   });
 };
 
-// Navigation functions for club details
-function goBackToClubs() {
-  showSection("clubs");
-}
-
 function joinClubFromDetails() {
   if (!currentUser) {
     showNotification("Please login to join clubs!", "error");
@@ -365,7 +299,9 @@ function updateAuthUI() {
     `;
 
     // Add dashboard link only for admins; remove if not admin
-    const existingDashboardLink = document.querySelector('a[onclick*="dashboard"]');
+    const existingDashboardLink = document.querySelector(
+      'a[onclick*="dashboard"]'
+    );
     if (currentUser.role === "admin") {
       if (!existingDashboardLink) {
         const dashboardLi = document.createElement("li");
@@ -545,7 +481,8 @@ window.addEventListener("popstate", function (event) {
 
   // Guard: prevent non-admins from navigating to dashboard via browser controls
   if (
-    sectionName === "dashboard" && (!currentUser || currentUser.role !== "admin")
+    sectionName === "dashboard" &&
+    (!currentUser || currentUser.role !== "admin")
   ) {
     sectionName = "home";
   }
